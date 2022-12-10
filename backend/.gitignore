@@ -1,0 +1,4 @@
+venv/
+api/.env
+api/api/__pycache__
+api/auth0authorization/__pycache__
