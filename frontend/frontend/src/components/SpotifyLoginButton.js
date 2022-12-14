@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { SpotifyApiContext } from "react-spotify-api";
+// import { SpotifyApiContext } from "react-spotify-api";
 import { SpotifyAuth, Scopes } from "react-spotify-auth";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -49,9 +49,6 @@ const SpotifyLoginButton = () => {
     <div>
       {isSpotifyAuth ? (
         <div>
-        <SpotifyApiContext.Provider value={spotifyToken}>
-          <p> You are authorized with {spotifyToken}</p>
-        </SpotifyApiContext.Provider>
         <UserHistory/>
         </div>
         ) : (

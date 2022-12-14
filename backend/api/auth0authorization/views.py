@@ -26,7 +26,7 @@ def has_valid_token(user_email: str):
 
     timediff = timezone.now() - token_date
     print("timediff", timediff.total_seconds())
-    if timediff.total_seconds() >= 3600:
+    if timediff.total_seconds() >= 1000:
         return False
 
     return True
@@ -35,11 +35,17 @@ def get_token(user_email: str) -> str:
     usa = UserSpotifyAuthenticated.objects.filter(email=user_email)[0]
     return usa.token
 
-def get_recent_tracks(token: str) -> List[str]:
+def get_recent_uris(token: str) -> List[str]:
     client = spotipy.Spotify(auth=token)
     response = client.current_user_recently_played()
     uris = list(map(lambda item: item['track']['uri'], response['items']))
     return uris
+
+def get_recent_names(token: str) -> List[str]:
+    client = spotipy.Spotify(auth=token)
+    response = client.current_user_recently_played()
+    names = list(map(lambda item: item['track']['name'], response['items']))
+    return names
 
 @api_view(['GET'])
 def is_spotify_authenticated(request: Request):
@@ -81,7 +87,7 @@ def get_user_history(request: Request):
         return HttpResponseForbidden
     token = get_token(user_email)
     print(token)
-    recent_tracks = get_recent_tracks(token)
-    print(f"recent_tracks {recent_tracks}")
-    return JsonResponse({"tracks": recent_tracks})
+    recent_uris = get_recent_uris(token)
+    recent_names = get_recent_names(token)
+    return JsonResponse({"uris": recent_uris, "names": recent_names})
     
