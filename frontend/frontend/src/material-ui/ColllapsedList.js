@@ -12,15 +12,15 @@ const CollapsedList =(props) => {
     };
   
     const listElements = props.elements.map((track, index) =>
-    <ListItem key={index}><ListItemText primary={track}/> </ListItem>)
+    <ListItem key={index} color="primary"><ListItemText primary={track} color="primary" /> </ListItem>)
   
     return (
-      <List component="nav" aria-labelledby="nested-list-subheader">
+      <List component="nav" aria-labelledby="nested-list-subheader" color="secondary">
         <ListItem onClick={handleClick}>
-          <ListItemText primary={props.title} />
+          <ListItemText primary={props.title} color="primary"/>
           {open ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
-        <Collapse in={open} timeout="auto" unmountOnExit>
+        <Collapse in={open} timeout="auto" unmountOnExit color="primary">
           <List component="div" disablePadding>
             {listElements}
           </List>

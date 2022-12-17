@@ -1,14 +1,23 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
-from .models import UserSpotifyAuthenticated
+from .models import UserSpotifyAuthenticated, ModelReviews
 from django.http import HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from datetime import datetime
 from django.utils import timezone
 from rest_framework.request import Request
-from typing import List
+from typing import List, Tuple
 import spotipy
+import os
+import requests
+import json
+
+PROBABILITY_RANDOM = 1.0
+RANDOM_DECAY_RATE = 0.05
+RECOMMENDER_ENGINE_URL = os.getenv("RECOMMENDER_ENGINE_URL")
+ENDPOINTS = ["/coldstart", "/reranked", "/collaborative", "/ranked"]
+
 
 def has_valid_token(user_email: str):
     if len(UserSpotifyAuthenticated.objects.filter(email=user_email)) == 0:
@@ -35,6 +44,12 @@ def get_token(user_email: str) -> str:
     usa = UserSpotifyAuthenticated.objects.filter(email=user_email)[0]
     return usa.token
 
+def get_track_name(token: str, track_uri: str) -> str:
+    client = spotipy.Spotify(auth=token)
+    response = client.track(track_uri)
+    return response["name"]
+
+
 def get_recent_uris(token: str) -> List[str]:
     client = spotipy.Spotify(auth=token)
     response = client.current_user_recently_played()
@@ -46,6 +61,32 @@ def get_recent_names(token: str) -> List[str]:
     response = client.current_user_recently_played()
     names = list(map(lambda item: item['track']['name'], response['items']))
     return names
+
+def save_playlist_spotipy(token: str, playlist_name: str, uris: List[str]) -> None:
+    client = spotipy.Spotify(auth=token)
+    user_id = client.current_user()["id"]
+    response = client.user_playlist_create(user=user_id, name=playlist_name, description="Created by Conseillify-AI")
+    playlist_id = response["id"]
+    client.playlist_add_items(playlist_id, uris)
+
+
+    
+
+def get_best_model_endpoint():
+    pass
+
+def get_random_model_endpoint():
+    pass
+
+def call_recommendation_endpoint(endpoint: str, history: List[str], playlist_name: str) -> Tuple[List[str], bool]:
+    request_url = RECOMMENDER_ENGINE_URL + endpoint
+    params_dict = {"history": history, "playlist_name": playlist_name, "n_recommendation": 50}
+    try:
+        response = requests.get(url=request_url, params=params_dict).json()
+    except:
+        print(Request('GET', request_url, params=params_dict).prepare())
+    print("RESPONSE", response)
+    return response["recommendations"], response["coldstart"]
 
 @api_view(['GET'])
 def is_spotify_authenticated(request: Request):
@@ -86,8 +127,43 @@ def get_user_history(request: Request):
     if not has_valid_token(user_email):
         return HttpResponseForbidden
     token = get_token(user_email)
-    print(token)
     recent_uris = get_recent_uris(token)
     recent_names = get_recent_names(token)
     return JsonResponse({"uris": recent_uris, "names": recent_names})
-    
+
+@api_view(['GET'])
+def get_recommendation(request: Request):
+    user_email = request.query_params.get('email')
+    if not has_valid_token(user_email):
+        return HttpResponseForbidden
+    token = get_token(user_email)
+    history = request.query_params.get('userHistory')
+    playlist_name = request.query_params.get('playlistName')
+    endpoint = "/coldstart/history"
+    if not history:
+        history = []
+    else:
+        history = json.loads(history)
+    if not playlist_name:
+        playlist_name = ""
+    uris, coldstart = call_recommendation_endpoint(endpoint, history, playlist_name)
+    names = list(map(lambda uri: get_track_name(token, uri), uris))
+    print("endpoint", endpoint, "coldstart", coldstart)
+    return JsonResponse({"uris": uris, "names": names, "coldstart": coldstart, endpoint: "endpoint"})
+
+
+@api_view(['GET'])
+def save_playlist(request: Request):
+    user_email = request.query_params.get('email')
+    if not has_valid_token(user_email):
+        return HttpResponseForbidden
+    token = get_token(user_email)
+    uris = json.loads(request.query_params.get('uris'))
+    playlist_name = request.query_params.get('playlistName')
+    save_playlist_spotipy(token, playlist_name, uris)
+
+    return JsonResponse({})
+
+@api_view(['GET'])
+def submit_feedback(request: Request):
+    pass

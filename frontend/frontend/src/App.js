@@ -8,7 +8,6 @@ import Theme from "./material-ui/Theme";
 import TitleLabel from "./material-ui/TitleLabel";
 function App() {
   return (
-    <ThemeProvider theme={Theme}>
       <Grid
         container
         spacing={0}
@@ -19,9 +18,7 @@ function App() {
         display="flex"
       >
           
-        <Grid item xs={3}>
-          <TitleLabel/>
-        </Grid>
+        <TitleLabel/>
         <Grid item xs={3}>
           <AuthenticationButton />
         </Grid>
@@ -29,7 +26,6 @@ function App() {
           <SpotifyLogin />
         </Grid>
       </Grid>
-    </ThemeProvider>
   );
 }
 

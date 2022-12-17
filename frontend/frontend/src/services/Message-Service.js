@@ -59,3 +59,43 @@ export const getIsSpotifyAuthenticated = async (accessToken, email) => {
         data, error,
     }
 }
+
+export const getRecommendations = async (accessToken, email, userHistory, playlistName) => {
+    const config = {
+        url: `${apiServerUrl}/api/get_recommendations`,
+        method: "GET",
+        headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+            userHistory: JSON.stringify(userHistory),
+            playlistName: playlistName,
+            email: email,
+        }
+    };
+    const {data, error} = (await callExternalApi({config}));
+    return {
+        data, error,
+    }
+}
+
+export const savePlaylist = async (accessToken, email, playlistName, uris) => {
+    const config = {
+        url: `${apiServerUrl}/api/save_playlist`,
+        method: "GET",
+        headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+            uris: JSON.stringify(uris),
+            playlistName: playlistName,
+            email: email,
+        }
+    };
+    const {data, error} = (await callExternalApi({config}));
+    return {
+        data, error,
+    }
+}
