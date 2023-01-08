@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-// import { SpotifyApiContext } from "react-spotify-api";
-import { SpotifyAuth, Scopes } from "react-spotify-auth";
+import { SpotifyAuth } from "react-spotify-auth";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
   getIsSpotifyAuthenticated,
@@ -15,10 +14,9 @@ const SpotifyLoginButton = () => {
     Cookies.get("spotifyAuthToken")
   );
   const [isSpotifyAuth, setIsSpotifyAuth] = useState("");
-  const { getAccessTokenSilently, user, isAuthenticated } = useAuth0();
-  const clientId = "69a5bef19a7349f09227a6fee2d923c1";
+  const { getAccessTokenSilently, user} = useAuth0();
+  const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
   const redirectUri = process.env.REACT_APP_SPOTIFY_REDIRECT_URI;
-  console.log("envars", clientId, redirectUri)
   useEffect(() => {
     let isMounted = true;
     const getIsSpotifyAuth = async () => {
@@ -31,32 +29,36 @@ const SpotifyLoginButton = () => {
     };
     const saveSpotifyToken = async (spotifyToken) => {
       const accessToken = await getAccessTokenSilently();
-      console.log("saveSpotifyToken token: ", spotifyToken)
-      const { data, error } = await postSaveToken(accessToken, user.email, spotifyToken);
-      console.log("data", data, "error", error);
-    }
+      const { data, error } = await postSaveToken(
+        accessToken,
+        user.email,
+        spotifyToken
+      );
+    };
     getIsSpotifyAuth();
-    if(spotifyToken){
-      console.log("saving spotifyToken", window.location.href, spotifyToken)
+    if (spotifyToken) {
       saveSpotifyToken(spotifyToken);
     }
     return () => {
       isMounted = false;
-    }
+    };
   }, [getAccessTokenSilently, user]);
 
   return (
     <div>
       {isSpotifyAuth ? (
         <div>
-        <UserHistory/>
+          <UserHistory />
         </div>
-        ) : (
+      ) : (
         <SpotifyAuth
           redirectUri={process.env.REACT_APP_SPOTIFY_REDIRECT_URI}
           clientID={process.env.REACT_APP_SPOTIFY_CLIENT_ID}
-          scopes={["user-read-recently-played", "playlist-modify-public", "playlist-modify-private"]}
-          onAccessToken={console.log(window.location.pathname, spotifyToken)}
+          scopes={[
+            "user-read-recently-played",
+            "playlist-modify-public",
+            "playlist-modify-private",
+          ]}
         />
       )}
     </div>

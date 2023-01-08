@@ -11,3 +11,7 @@ class ModelReviews(models.Model):
     coldstart = models.BooleanField(default=False)
     user_review = models.IntegerField(default=0)
     user_feedback = models.CharField(default="", max_length=1026)
+
+class Probability(models.Model):
+    probability_random = models.FloatField(default=0.95)
+    decay_rate = models.FloatField(default=0.01)

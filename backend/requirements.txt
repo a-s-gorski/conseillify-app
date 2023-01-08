@@ -9,3 +9,5 @@ urllib3~=1.26
 cryptography~=3.4
 typing
 spotipy
+psycopg2-binary 
+numpy

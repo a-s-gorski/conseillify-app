@@ -7,4 +7,5 @@ urlpatterns = [
     path('api/get_user_history', views.get_user_history),
     path('api/get_recommendations', views.get_recommendation),
     path('api/save_playlist', views.save_playlist),
+    path('api/submit_feedback', views.submit_feedback),
 ]

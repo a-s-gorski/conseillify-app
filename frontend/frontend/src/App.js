@@ -1,13 +1,14 @@
 import AuthenticationButton from "./components/AuthenticationButton";
-import Token from "./components/Token";
-import SpotifyAuthenticatedLabel from "./components/SpotifyAuthenticatedLabel";
 import SpotifyLogin from "./components/SpotifyLogin";
-import { Button, ThemeProvider } from "@mui/material";
+import {CssBaseline, ThemeProvider } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import Theme from "./material-ui/Theme";
 import TitleLabel from "./material-ui/TitleLabel";
+import DarkTheme from "./material-ui/DarkTheme";
+
 function App() {
   return (
+    <ThemeProvider theme={DarkTheme}>
+      <CssBaseline/>
       <Grid
         container
         spacing={0}
@@ -16,16 +17,17 @@ function App() {
         justifyContent={"center"}
         style={{ minHeight: "100vh" }}
         display="flex"
+        width={'100%'}
       >
-          
-        <TitleLabel/>
-        <Grid item xs={3}>
+        <TitleLabel />
+        <Grid item xs={6}>
           <AuthenticationButton />
         </Grid>
         <Grid item xs={3}>
           <SpotifyLogin />
         </Grid>
       </Grid>
+    </ThemeProvider>
   );
 }
 
