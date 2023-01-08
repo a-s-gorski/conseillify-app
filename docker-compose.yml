@@ -1,0 +1,41 @@
+version: '3'
+services:
+  recommenderengine:
+    container_name: 'recommenderengine'
+    image: adamsebastiangorski/conseillify-recommender-engine
+    ports:
+      - '8081:8081'
+  db:
+    container_name: db
+    image: postgres
+    env_file: database/.env
+    depends_on:
+      - recommenderengine
+  api:
+    image: adamsebastiangorski/api
+    container_name: api
+    depends_on:
+      - recommenderengine
+      - db
+    links:
+      - "db:db"
+      - "recommenderengine:recommenderengine"
+    build:
+      dockerfile: backend/Dockerfile
+      context: .
+    ports:
+      - '8000:8000'
+  frontend:
+    image: adamsebastiangorski/frontend
+    depends_on:
+      - recommenderengine
+      - db
+      - api
+    container_name: frontend
+    links:
+      - "api:api"
+    build:
+      dockerfile: frontend/Dockerfile
+      context: .
+    ports:
+      - "3000:3000"
