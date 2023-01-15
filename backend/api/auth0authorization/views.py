@@ -134,7 +134,6 @@ def is_spotify_authenticated(request: Request):
         validate_email(user_email)
     except ValidationError:
         return HttpResponseForbidden
-
     return JsonResponse({"is_spotify_authenticated": has_valid_token(user_email)})
 
 
