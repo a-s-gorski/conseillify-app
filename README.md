@@ -1,4 +1,4 @@
-## The repository represents an implementation of web aplication serving conseillify recommender engine
+## This repository represents an implementation of web aplication serving conseillify recommender engine
 
 ### To set it up it is necessary to add .env files in locations 
 
